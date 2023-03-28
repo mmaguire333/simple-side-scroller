@@ -1,13 +1,15 @@
-export default class Game {
+class Game {
   constructor() {
     this.world = {
+      backgroundColor: 'lightblue',
+
       width: 1000,
       height: 400,
 
       gravity: 10,
       friction: 0.9,
 
-      player: new Game.Player(),
+      player: new Game.Player(200, 100),
 
       boundaryCollision(playerObject) {
         if (playerObject.x < 0) {
