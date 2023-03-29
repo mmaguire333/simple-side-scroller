@@ -1,13 +1,14 @@
 class Game {
   constructor() {
     this.world = {
-      backgroundColor: 'lightblue',
+      backgroundColor: 'blue',
 
       width: 1000,
       height: 400,
 
-      gravity: 10,
-      friction: 0.9,
+      gravity: 3,
+      friction: 0.85,
+      drag: 0.95,
 
       player: new Game.Player(200, 100),
 
@@ -15,9 +16,7 @@ class Game {
         if (playerObject.x < 0) {
           playerObject.x = 0;
           playerObject.xVelocity = 0;
-        }
-
-        if (playerObject.x > this.width - playerObject.width) {
+        } else if (playerObject.x > this.width - playerObject.width) {
           playerObject.x = this.width - playerObject.width;
           playerObject.xVelocity = 0;
         }
@@ -25,9 +24,8 @@ class Game {
         if (playerObject.y < 0) {
           playerObject.y = 0;
           playerObject.yVelocity = 0;
-        }
-
-        if (playerObject > this.height - playerObject.height) {
+        } else if (playerObject.y > this.height - playerObject.height) {
+          playerObject.isJumping = false;
           playerObject.y = this.height - playerObject.height;
           playerObject.yVelocity = 0;
         }
@@ -40,7 +38,7 @@ class Game {
 
         // player velocity should decrease over time if not (actively moving i.e. friction)
         this.player.xVelocity *= this.friction;
-        this.player.yVelocity *= this.friction;
+        this.player.yVelocity *= this.drag;
 
         // check if hitting boundary and adjust position and velocity accordingly
         this.boundaryCollision(this.player);
@@ -66,16 +64,20 @@ Game.Player = class {
   }
 
   jump() {
-    this.isJumping = true;
-    this.yVelocity = -50;
+    if(!this.isJumping) {
+      this.isJumping = true;
+      this.yVelocity = -40;
+    }
   }
 
   moveLeft() {
-    this.xVelocity -= 5;
+    this.xVelocity -= 2;
+    console.log(this.xVelocity);
   }
 
   moveRight() {
-    this.yVelocity += 5;
+    this.xVelocity += 2;
+    console.log(this.xVelocity);
   }
 
   updatePosition() {
