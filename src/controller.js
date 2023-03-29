@@ -17,13 +17,10 @@
 
         if(event.key === 'ArrowLeft') {
             this.left.getInput(isKeyDown);
-            console.log("left is down: " + isKeyDown);
         } else if(event.key === 'ArrowUp') {
             this.up.getInput(isKeyDown);
-            console.log("up is down: " + isKeyDown);
         } else if(event.key === 'ArrowRight') {
             this.right.getInput(isKeyDown);
-            console.log("right is down: " + isKeyDown);
         }
     }
  }
