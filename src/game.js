@@ -1,7 +1,10 @@
 class Game {
   constructor() {
     this.world = {
-      backgroundColor: 'blue',
+      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      backgroundImage: new Image(),
+      backgroundOffset: 0,
+      scrollSpeed: 0,
 
       width: 1000,
       height: 400,
@@ -10,14 +13,24 @@ class Game {
       friction: 0.85,
       drag: 0.95,
 
-      player: new Game.Player(200, 100),
+      player: new Game.Player(400, 100),
+
+      tilemap: undefined,
+
+      loadTilemap(data) {
+        fetch(data)
+        .then((response) => response.json())
+        .then((json) => { 
+          this.tilemap = json.layers[2].data;
+        });
+      },
 
       boundaryCollision(playerObject) {
-        if (playerObject.x < 0) {
-          playerObject.x = 0;
+        if (playerObject.x < this.width * 0.25) {
+          playerObject.x = this.width * 0.25;
           playerObject.xVelocity = 0;
-        } else if (playerObject.x > this.width - playerObject.width) {
-          playerObject.x = this.width - playerObject.width;
+        } else if (playerObject.x > this.width * 0.75 - playerObject.width) {
+          playerObject.x = this.width * 0.75 - playerObject.width;
           playerObject.xVelocity = 0;
         }
 
@@ -72,12 +85,10 @@ Game.Player = class {
 
   moveLeft() {
     this.xVelocity -= 2;
-    console.log(this.xVelocity);
   }
 
   moveRight() {
     this.xVelocity += 2;
-    console.log(this.xVelocity);
   }
 
   updatePosition() {
