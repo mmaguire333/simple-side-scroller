@@ -4,7 +4,7 @@ class Game {
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
       backgroundImage: new Image(),
       backgroundOffset: 0,
-      scrollSpeed: 0,
+      scrollSpeed: 7,
 
       width: 1000,
       height: 400,
@@ -13,19 +13,42 @@ class Game {
       friction: 0.85,
       drag: 0.95,
 
-      player: new Game.Player(400, 100),
+      player: new Game.Player(300, 100),
 
-      tilemap: undefined,
+      tileSize: 16,
+      numColumns: 500,
+      numRows: 25,
+      tilemap: [],
+      tilePositions: [],
 
       loadTilemap(data) {
         fetch(data)
         .then((response) => response.json())
         .then((json) => { 
-          this.tilemap = json.layers[2].data;
+          let map = json.layers[2].data;
+          for(let i = 0; i < map.length; i++) {
+            this.tilemap.push(map[i]);
+            this.tilePositions.push({x: (i % this.numColumns) * this.tileSize, y: Math.floor(i / this.numColumns) * this.tileSize});
+          }
         });
       },
 
+      detectIntersection(playerObject, tile, tileSize) {
+        if(playerObject.x - this.backgroundOffset + playerObject.width <= tile.x) {
+          return false;
+        } else if(playerObject.x - this.backgroundOffset >= tile.x + tileSize) {
+          return false;
+        } else if(playerObject.y + playerObject.height <= tile.y) {
+          return false;
+        } else if(playerObject.y >= tile.y + tileSize) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+
       boundaryCollision(playerObject) {
+        // left and right boundary
         if (playerObject.x < this.width * 0.25) {
           playerObject.x = this.width * 0.25;
           playerObject.xVelocity = 0;
@@ -33,25 +56,101 @@ class Game {
           playerObject.x = this.width * 0.75 - playerObject.width;
           playerObject.xVelocity = 0;
         }
+        
+        if (playerObject.y > this.height) {
+          playerObject.x = 300;
+          playerObject.xVelocity = 0;
+          playerObject.y = 100;
+          playerObject.yVelocity = 0;
+          this.backgroundOffset = 0;
+        }
+      },
 
-        if (playerObject.y < 0) {
-          playerObject.y = 0;
-          playerObject.yVelocity = 0;
-        } else if (playerObject.y > this.height - playerObject.height) {
-          playerObject.isJumping = false;
-          playerObject.y = this.height - playerObject.height;
-          playerObject.yVelocity = 0;
+      updateBackgroundOffset() {
+        // update offset for scrolling effect
+        // if the update causes a collision undo it
+        if(this.player.xVelocity > 0) {
+          this.backgroundOffset -= this.scrollSpeed;
+
+          for(let i = 0; i < this.tilePositions.length; i++) {
+            if(this.tilemap[i] !== 0) {
+              if(this.detectIntersection(this.player, this.tilePositions[i], this.tileSize)) {
+                this.backgroundOffset += this.scrollSpeed;
+                break;
+              }
+            }
+          }
+        }
+        
+        if(this.player.xVelocity < 0) {
+          this.backgroundOffset += this.scrollSpeed;
+
+          for(let i = 0; i < this.tilePositions.length; i++) {
+            if(this.tilemap[i] !== 0) {
+              if(this.detectIntersection(this.player, this.tilePositions[i], this.tileSize)) {
+                this.backgroundOffset -= this.scrollSpeed;
+                break;
+              }  
+            }
+          }
+        }
+
+        if(this.backgroundOffset > 0) {
+          this.backgroundOffset = 0;
+        }
+
+        if(this.backgroundOffset < -7000) {
+          this.backgroundOffset = -7000;
         }
       },
 
       updateWorld() {
         // players y velocity increases continuously due to gravity, but will be 0 if not jumping due to boundary collision with floor
         this.player.yVelocity += this.gravity;
-        this.player.updatePosition();
 
         // player velocity should decrease over time if not (actively moving i.e. friction)
         this.player.xVelocity *= this.friction;
         this.player.yVelocity *= this.drag;
+
+        // update velocity so that players coordinates are whole numbers
+        if(this.player.xVelocity > 0) {
+          this.player.xVelocity = Math.floor(this.player.xVelocity);
+        } else {
+          this.player.xVelocity = Math.ceil(this.player.xVelocity);
+        }
+
+        if(this.player.yVelocity > 0) {
+          this.player.yVelocity = Math.floor(this.player.yVelocity);
+        } else {
+          this.player.yVelocity = Math.ceil(this.player.yVelocity);
+        }
+        
+
+        // update horizontal and vertical collision rectangles
+        this.player.horizontalRect.x = this.player.x + this.player.xVelocity;
+        this.player.horizontalRect.y = this.player.y;
+        this.player.verticalRect.x = this.player.x;
+        this.player.verticalRect.y = this.player.y + this.player.yVelocity;
+
+        for(let i = 0; i < this.tilePositions.length; i++) {
+          if(this.tilemap[i] !== 0) {
+            if(this.detectIntersection(this.player.horizontalRect, this.tilePositions[i], this.tileSize)) {
+              this.player.xVelocity = 0;
+            }
+
+            if(this.detectIntersection(this.player.verticalRect, this.tilePositions[i], this.tileSize)) {
+              this.player.isJumping = false;
+              this.player.yVelocity = 0;
+            }
+          }
+          
+        }
+
+        // update player position
+        this.player.updatePosition();
+        
+        //update background offset
+        this.updateBackgroundOffset();
 
         // check if hitting boundary and adjust position and velocity accordingly
         this.boundaryCollision(this.player);
@@ -71,9 +170,11 @@ Game.Player = class {
     this.y = y;
     this.xVelocity = 0;
     this.yVelocity = 0;
-    this.width = 50;
-    this.height = 50;
-    this.isJumping = false;
+    this.width = 30;
+    this.height = 30;
+    this.horizontalRect = {x: 0, y: 0, width: this.width, height: this.height};
+    this.verticalRect = {x: 0, y: 0, width: this.width, height: this.height};
+    this.isJumping = true;
   }
 
   jump() {

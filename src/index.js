@@ -17,32 +17,16 @@ const render = function() {
     display.drawMap(game.world.tilemap, 500, 16, game.world.backgroundOffset);
     display.drawRectangle(game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height, 'red');
     display.render();
-
-    // update offset for scrolling effect
-    game.world.backgroundOffset -= game.world.scrollSpeed;
-    if(game.world.backgroundOffset > 0) {
-        game.world.backgroundOffset = 0;
-    }
-
-    if(game.world.backgroundOffset < -7000) {
-        game.world.backgroundOffset = -7000;
-    }
 }
 
 // function to update state of game world based on user input
 const update = function() {
     if(controller.left.isDown) {
         game.world.player.moveLeft();
-        game.world.scrollSpeed = -7;
     }
 
     if(controller.right.isDown) {
         game.world.player.moveRight();
-        game.world.scrollSpeed = 7;
-    }
-
-    if(!controller.left.isDown && !controller.right.isDown) {
-        game.world.scrollSpeed = 0
     }
 
     if(controller.up.isDown) {
