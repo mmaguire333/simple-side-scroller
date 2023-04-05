@@ -4,7 +4,7 @@ class Game {
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
       backgroundImage: new Image(),
       backgroundOffset: 0,
-      scrollSpeed: 7,
+      scrollSpeed: 9,
 
       width: 1000,
       height: 400,
@@ -19,15 +19,18 @@ class Game {
       numColumns: 500,
       numRows: 25,
       tilemap: [],
+      collisionMap: [],
       tilePositions: [],
 
       loadTilemap(data) {
         fetch(data)
         .then((response) => response.json())
         .then((json) => { 
-          let map = json.layers[2].data;
-          for(let i = 0; i < map.length; i++) {
-            this.tilemap.push(map[i]);
+          let visMap = json.layers[2].data;
+          let colMap = json.layers[3].data;
+          for(let i = 0; i < visMap.length; i++) {
+            this.tilemap.push(visMap[i]);
+            this.collisionMap.push(colMap[i]);
             this.tilePositions.push({x: (i % this.numColumns) * this.tileSize, y: Math.floor(i / this.numColumns) * this.tileSize});
           }
         });
@@ -57,6 +60,7 @@ class Game {
           playerObject.xVelocity = 0;
         }
         
+        // reset player at the beginning if they fall through the bottom
         if (playerObject.y > this.height) {
           playerObject.x = 300;
           playerObject.xVelocity = 0;
@@ -73,7 +77,7 @@ class Game {
           this.backgroundOffset -= this.scrollSpeed;
 
           for(let i = 0; i < this.tilePositions.length; i++) {
-            if(this.tilemap[i] !== 0) {
+            if(this.collisionMap[i] !== 0) {
               if(this.detectIntersection(this.player, this.tilePositions[i], this.tileSize)) {
                 this.backgroundOffset += this.scrollSpeed;
                 break;
@@ -86,7 +90,7 @@ class Game {
           this.backgroundOffset += this.scrollSpeed;
 
           for(let i = 0; i < this.tilePositions.length; i++) {
-            if(this.tilemap[i] !== 0) {
+            if(this.collisionMap[i] !== 0) {
               if(this.detectIntersection(this.player, this.tilePositions[i], this.tileSize)) {
                 this.backgroundOffset -= this.scrollSpeed;
                 break;
@@ -133,7 +137,7 @@ class Game {
         this.player.verticalRect.y = this.player.y + this.player.yVelocity;
 
         for(let i = 0; i < this.tilePositions.length; i++) {
-          if(this.tilemap[i] !== 0) {
+          if(this.collisionMap[i] !== 0) {
             if(this.detectIntersection(this.player.horizontalRect, this.tilePositions[i], this.tileSize)) {
               this.player.xVelocity = 0;
             }
@@ -170,8 +174,8 @@ Game.Player = class {
     this.y = y;
     this.xVelocity = 0;
     this.yVelocity = 0;
-    this.width = 30;
-    this.height = 30;
+    this.width = 20;
+    this.height = 38;
     this.horizontalRect = {x: 0, y: 0, width: this.width, height: this.height};
     this.verticalRect = {x: 0, y: 0, width: this.width, height: this.height};
     this.isJumping = true;
@@ -180,7 +184,7 @@ Game.Player = class {
   jump() {
     if(!this.isJumping) {
       this.isJumping = true;
-      this.yVelocity = -40;
+      this.yVelocity = -35;
     }
   }
 
