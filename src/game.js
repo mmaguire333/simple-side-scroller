@@ -4,14 +4,14 @@ class Game {
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
       backgroundImage: new Image(),
       backgroundOffset: 0,
-      scrollSpeed: 9,
+      scrollSpeed: 8,
 
       width: 1000,
       height: 400,
 
-      gravity: 3,
+      gravity: 2.75,
       friction: 0.85,
-      drag: 0.95,
+      drag: 0.9,
 
       player: new Game.Player(300, 100),
 
@@ -34,6 +34,66 @@ class Game {
             this.tilePositions.push({x: (i % this.numColumns) * this.tileSize, y: Math.floor(i / this.numColumns) * this.tileSize});
           }
         });
+      },
+
+      getAdjacentIndices(x, y) {
+        let indices = [];
+        let col = Math.floor(x / this.tileSize);
+        let row = Math.floor(y / this.tileSize);
+
+        // adds all indices of tiles within 16px to the left of x, 48px to the right of x, 16px above y, and 64px below y
+        indices.push((col - 1) + ((row - 1) * this.numColumns));
+        indices.push(col + ((row - 1) * this.numColumns));
+        indices.push((col + 1) + ((row - 1) * this.numColumns));
+        indices.push((col + 2) + ((row - 1) * this.numColumns));
+        indices.push((col + 3) + ((row - 1) * this.numColumns));
+        indices.push((col + 4) + ((row - 1) * this.numColumns));
+
+        indices.push((col - 1) + (row * this.numColumns));
+        indices.push(col + (row * this.numColumns));
+        indices.push((col + 1) + (row * this.numColumns));
+        indices.push((col + 2) + (row  * this.numColumns));
+        indices.push((col + 3) + (row  * this.numColumns));
+        indices.push((col + 4) + (row * this.numColumns));
+
+        indices.push((col - 1) + ((row + 1) * this.numColumns));
+        indices.push(col + ((row + 1) * this.numColumns));
+        indices.push((col + 1) + ((row + 1) * this.numColumns));
+        indices.push((col + 2) + ((row + 1) * this.numColumns));
+        indices.push((col + 3) + ((row + 1) * this.numColumns));
+        indices.push((col + 4) + ((row + 1) * this.numColumns));
+
+        indices.push((col - 1) + ((row + 2) * this.numColumns));
+        indices.push(col + ((row + 2) * this.numColumns));
+        indices.push((col + 1) + ((row + 2) * this.numColumns));
+        indices.push((col + 2) + ((row + 2) * this.numColumns));
+        indices.push((col + 3) + ((row + 2) * this.numColumns));
+        indices.push((col + 4) + ((row + 2) * this.numColumns));
+
+        indices.push((col - 1) + ((row + 3) * this.numColumns));
+        indices.push(col + ((row + 3) * this.numColumns));
+        indices.push((col + 1) + ((row + 3) * this.numColumns));
+        indices.push((col + 2) + ((row + 3) * this.numColumns));
+        indices.push((col + 3) + ((row + 3) * this.numColumns));
+        indices.push((col + 4) + ((row + 3) * this.numColumns));
+
+        indices.push((col - 1) + ((row + 4) * this.numColumns));
+        indices.push(col + ((row + 4) * this.numColumns));
+        indices.push((col + 1) + ((row + 4) * this.numColumns));
+        indices.push((col + 2) + ((row + 4) * this.numColumns));
+        indices.push((col + 3) + ((row + 4) * this.numColumns));
+        indices.push((col + 4) + ((row + 4) * this.numColumns));
+
+        indices.push((col - 1) + ((row + 5) * this.numColumns));
+        indices.push(col + ((row + 5) * this.numColumns));
+        indices.push((col + 1) + ((row + 5) * this.numColumns));
+        indices.push((col + 2) + ((row + 5) * this.numColumns));
+        indices.push((col + 3) + ((row + 5) * this.numColumns));
+        indices.push((col + 4) + ((row + 5) * this.numColumns));
+
+        // filter out invalid indices
+        indices = indices.filter(index => (index >= 0 && index < this.numColumns * this.numRows));
+        return indices;
       },
 
       detectIntersection(playerObject, tile, tileSize) {
@@ -73,12 +133,14 @@ class Game {
       updateBackgroundOffset() {
         // update offset for scrolling effect
         // if the update causes a collision undo it
+        let adjIndices = this.getAdjacentIndices(this.player.x - this.backgroundOffset, this.player.y);
+
         if(this.player.xVelocity > 0) {
           this.backgroundOffset -= this.scrollSpeed;
 
-          for(let i = 0; i < this.tilePositions.length; i++) {
-            if(this.collisionMap[i] !== 0) {
-              if(this.detectIntersection(this.player, this.tilePositions[i], this.tileSize)) {
+          for(let i = 0; i < adjIndices.length; i++) {
+            if(this.collisionMap[adjIndices[i]] !== 0) {
+              if(this.detectIntersection(this.player, this.tilePositions[adjIndices[i]], this.tileSize)) {
                 this.backgroundOffset += this.scrollSpeed;
                 break;
               }
@@ -89,9 +151,9 @@ class Game {
         if(this.player.xVelocity < 0) {
           this.backgroundOffset += this.scrollSpeed;
 
-          for(let i = 0; i < this.tilePositions.length; i++) {
-            if(this.collisionMap[i] !== 0) {
-              if(this.detectIntersection(this.player, this.tilePositions[i], this.tileSize)) {
+          for(let i = 0; i < adjIndices.length; i++) {
+            if(this.collisionMap[adjIndices[i]] !== 0) {
+              if(this.detectIntersection(this.player, this.tilePositions[adjIndices[i]], this.tileSize)) {
                 this.backgroundOffset -= this.scrollSpeed;
                 break;
               }  
@@ -136,13 +198,16 @@ class Game {
         this.player.verticalRect.x = this.player.x;
         this.player.verticalRect.y = this.player.y + this.player.yVelocity;
 
-        for(let i = 0; i < this.tilePositions.length; i++) {
-          if(this.collisionMap[i] !== 0) {
-            if(this.detectIntersection(this.player.horizontalRect, this.tilePositions[i], this.tileSize)) {
+        // check for collisions only on adjacent tiles instead of all tiles in tilemap
+        let adjIndices = this.getAdjacentIndices(this.player.x - this.backgroundOffset, this.player.y);
+
+        for(let i = 0; i < adjIndices.length; i++) {
+          if(this.collisionMap[adjIndices[i]] !== 0) {
+            if(this.detectIntersection(this.player.horizontalRect, this.tilePositions[adjIndices[i]], this.tileSize)) {
               this.player.xVelocity = 0;
             }
 
-            if(this.detectIntersection(this.player.verticalRect, this.tilePositions[i], this.tileSize)) {
+            if(this.detectIntersection(this.player.verticalRect, this.tilePositions[adjIndices[i]], this.tileSize)) {
               this.player.isJumping = false;
               this.player.yVelocity = 0;
             }
@@ -174,11 +239,17 @@ Game.Player = class {
     this.y = y;
     this.xVelocity = 0;
     this.yVelocity = 0;
-    this.width = 20;
-    this.height = 38;
+    this.width = 40;
+    this.height = 60;
     this.horizontalRect = {x: 0, y: 0, width: this.width, height: this.height};
     this.verticalRect = {x: 0, y: 0, width: this.width, height: this.height};
     this.isJumping = true;
+    this.idleSpriteSheet = new Image();
+    this.idleBackwardsSpriteSheet = new Image();
+    this.runSpriteSheet = new Image();
+    this.runBackwardsSpriteSheet = new Image();
+    this.jumpSpriteSheet = new Image();
+    this.jumpBackwardsSpriteSheet = new Image();
   }
 
   jump() {
