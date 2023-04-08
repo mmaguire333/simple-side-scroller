@@ -3,6 +3,10 @@ class Display {
         this.buffer = document.createElement('canvas').getContext('2d');
         this.context = canvas.getContext('2d');
         this.tiles = new Display.Tileset(16, 34);
+        this.frameX = 0;
+        this.frameY = 0;
+        this.gameFrame = 0;
+        this.staggerFrames = 2;
     }
 
     drawMap(map, numCols, mapTileSize, offset) {
@@ -25,9 +29,8 @@ class Display {
         this.buffer.drawImage(image, offset, 0);
     }
 
-    drawRectangle(x, y, width, height, color) {
-        this.buffer.fillStyle = color;
-        this.buffer.fillRect(x, y, width, height);
+    drawPlayer(image, spriteX, spriteY, spriteWidth, spriteHeight, x, y, width, height) {
+        this.buffer.drawImage(image, spriteX, spriteY, spriteWidth, spriteHeight, x, y, width, height);
     }
 
     fill(color) {

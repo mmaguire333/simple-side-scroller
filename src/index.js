@@ -15,7 +15,45 @@ const render = function() {
     // draw content for next frame
     display.drawBackground(game.world.backgroundImage, game.world.backgroundOffset);
     display.drawMap(game.world.tilemap, 500, 16, game.world.backgroundOffset);
-    display.drawRectangle(game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height, 'red');
+
+    let currentSprite = game.world.player.jumpSpriteSheet;
+    let frameCount = 0;
+    if(game.world.player.isJumping) {
+        frameCount = 3;
+        if(game.world.player.xVelocity >= 0) {
+            currentSprite = game.world.player.jumpSpriteSheet; 
+        } else {
+            currentSprite = game.world.player.jumpBackwardsSpriteSheet;
+        }
+    } else {
+        frameCount = 10;
+        if(controller.right.isDown) {
+            currentSprite = game.world.player.runSpriteSheet;
+        } else if(controller.left.isDown) {
+            currentSprite = game.world.player.runBackwardsSpriteSheet;
+        } else {
+            currentSprite = game.world.player.idleSpriteSheet;
+        }
+    }
+
+    if(currentSprite === game.world.player.runBackwardsSpriteSheet || currentSprite === game.world.player.jumpBackwardsSpriteSheet || currentSprite === game.world.player.idleBackwardsSpriteSheet) {
+        display.drawPlayer(currentSprite, 48 + (120 * (frameCount - 1 - display.frameX)), 40, 30, 40, game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height);
+    } else {
+        display.drawPlayer(currentSprite, 40 + (120 * display.frameX), 40, 30, 40, game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height);
+    }
+   
+    
+
+    if(display.gameFrame % display.staggerFrames === 0) {
+        if(display.frameX < frameCount - 1) {
+            display.frameX++;
+        } else {
+            display.frameX = 0; 
+        }
+    }
+
+    display.gameFrame++;
+
     display.render();
 }
 
@@ -53,6 +91,7 @@ display.buffer.canvas.width = game.world.width;
 window.addEventListener('keydown', (event) => {
     controller.keyDownOrUp(event);
 });
+
 // sets isDown property for controller up, right, or left variable to false when up, right, or left key is released
 window.addEventListener('keyup', (event) => {
     controller.keyDownOrUp(event);
@@ -70,6 +109,14 @@ game.world.backgroundImage.src = 'platform-sidescroller-background.png';
 
 // sets the tileset image src
 display.tiles.image.src = '../tilesets/SET1_Mainlev_build.png';
+
+// sets player spritesheet images
+game.world.player.idleSpriteSheet.src = '../character_spritesheets/_Idle.png';
+game.world.player.idleBackwardsSpriteSheet.src = '../character_spritesheets/_Idle_mirrored.png';
+game.world.player.runSpriteSheet.src = '../character_spritesheets/_Run.png';
+game.world.player.runBackwardsSpriteSheet.src = '../character_spritesheets/_Run_mirrored.png'; 
+game.world.player.jumpSpriteSheet.src = '../character_spritesheets/_Jump.png';
+game.world.player.jumpBackwardsSpriteSheet.src = '../character_spritesheets/_Jump_mirrored.png';
 
 
 // FIXME -- find a better way to do this, right now it is just a cheap way to make sure all the images and tilemap are loaded before starting engine
