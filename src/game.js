@@ -1,4 +1,4 @@
-class Game {
+export default class Game {
   constructor() {
     this.world = {
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
@@ -250,6 +250,68 @@ Game.Player = class {
     this.runBackwardsSpriteSheet = new Image();
     this.jumpSpriteSheet = new Image();
     this.jumpBackwardsSpriteSheet = new Image();
+    this.jumpFallTransitionSpriteSheet = new Image();
+    this.jumpFallTransitionBackwardsSpriteSheet = new Image();
+    this.spriteAnimations = {};
+    this.animationStates = [
+      {
+        name: 'idle',
+        frames: 10
+      },
+      {
+        name: 'idle backwards',
+        frames: 10
+      },
+      {
+        name: 'jump',
+        frames: 3
+      },
+      {
+        name: 'jump backwards',
+        frames: 3
+      },
+      {
+        name: 'run',
+        frames: 10
+      },
+      {
+        name: 'run backwards',
+        frames: 10,
+      },
+      {
+        name: 'jump fall transition',
+        frames: 2
+      },
+      {
+        name: 'jump fall transition backwards',
+        frames: 2
+      }
+    ];
+  }
+
+  populateSpriteAnimations() {
+    this.animationStates.forEach((state, index) => {
+      let frames = {
+        loc: []
+      }
+
+      for(let i = 0; i < state.frames; i++) {
+        let positionX = -1;
+        let positionY = -1;
+
+        if(index % 2 === 0) {
+          positionX = i * 120 + 40;
+          positionY = 40;
+        } else {
+          positionX = i * 120 + 48;
+          positionY = 40;
+        }
+        
+        frames.loc.push({x: positionX, y: positionY});
+      }
+
+      this.spriteAnimations[state.name] = frames;
+    });
   }
 
   jump() {

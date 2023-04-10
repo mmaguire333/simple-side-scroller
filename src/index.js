@@ -1,4 +1,7 @@
-//import Game from './game'
+import Game from './game.js';
+import Display from './display.js';
+import Controller from './controller.js';
+import Engine from './engine.js';
 
 // function to resize on screen canvas
 const resize = function(event) {
@@ -15,43 +18,44 @@ const render = function() {
     // draw content for next frame
     display.drawBackground(game.world.backgroundImage, game.world.backgroundOffset);
     display.drawMap(game.world.tilemap, 500, 16, game.world.backgroundOffset);
-
-    let currentSprite = game.world.player.jumpSpriteSheet;
-    let frameCount = 0;
-    if(game.world.player.isJumping) {
-        frameCount = 3;
-        if(game.world.player.xVelocity >= 0) {
-            currentSprite = game.world.player.jumpSpriteSheet; 
-        } else {
-            currentSprite = game.world.player.jumpBackwardsSpriteSheet;
-        }
-    } else {
-        frameCount = 10;
-        if(controller.right.isDown) {
-            currentSprite = game.world.player.runSpriteSheet;
-        } else if(controller.left.isDown) {
-            currentSprite = game.world.player.runBackwardsSpriteSheet;
-        } else {
-            currentSprite = game.world.player.idleSpriteSheet;
-        }
-    }
-
-    if(currentSprite === game.world.player.runBackwardsSpriteSheet || currentSprite === game.world.player.jumpBackwardsSpriteSheet || currentSprite === game.world.player.idleBackwardsSpriteSheet) {
-        display.drawPlayer(currentSprite, 48 + (120 * (frameCount - 1 - display.frameX)), 40, 30, 40, game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height);
-    } else {
-        display.drawPlayer(currentSprite, 40 + (120 * display.frameX), 40, 30, 40, game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height);
-    }
-   
+    display.drawNextLevel(7645 + game.world.backgroundOffset, 300);
     
+    let state = 'idle';
+    let sheet = game.world.player.idleSpriteSheet;
 
-    if(display.gameFrame % display.staggerFrames === 0) {
-        if(display.frameX < frameCount - 1) {
-            display.frameX++;
+    if(game.world.player.isJumping) {
+        if(game.world.player.xVelocity >= 0) {
+            state = 'jump';
+            sheet = game.world.player.jumpSpriteSheet;
         } else {
-            display.frameX = 0; 
+            state = 'jump backwards';
+            sheet = game.world.player.jumpBackwardsSpriteSheet;
+        }
+    } else {
+        if(controller.right.isDown) {
+            state = 'run';
+            sheet = game.world.player.runSpriteSheet;
+        } else if(controller.left.isDown) {
+            state = 'run backwards';
+            sheet = game.world.player.runBackwardsSpriteSheet;
+        } else {
+            state = 'idle';
+            sheet = game.world.player.idleSpriteSheet;
         }
     }
 
+
+    let position = Math.floor(display.gameFrame / display.staggerFrames) % game.world.player.spriteAnimations[state].loc.length;
+    let frameX = game.world.player.spriteAnimations[state].loc[position].x;
+    let frameY = game.world.player.spriteAnimations[state].loc[position].y;
+
+    // the backwards sprite sheets are mirrored, but the order of the images is not reversed. Therefore, we must animate the mirrored sheets in reverse order.
+    if(state === 'run backwards' || state === 'jump backward' || state === 'idle backwards') {
+        display.drawPlayer(sheet, -20 + (120 * game.world.player.spriteAnimations[state].loc.length) - frameX, frameY, 30, 40, game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height);
+    } else {
+        display.drawPlayer(sheet, frameX, frameY, 30, 40, game.world.player.x, game.world.player.y, game.world.player.width, game.world.player.height);
+    }
+    
     display.gameFrame++;
 
     display.render();
@@ -117,7 +121,11 @@ game.world.player.runSpriteSheet.src = '../character_spritesheets/_Run.png';
 game.world.player.runBackwardsSpriteSheet.src = '../character_spritesheets/_Run_mirrored.png'; 
 game.world.player.jumpSpriteSheet.src = '../character_spritesheets/_Jump.png';
 game.world.player.jumpBackwardsSpriteSheet.src = '../character_spritesheets/_Jump_mirrored.png';
+game.world.player.jumpFallTransitionSpriteSheet.src = '../character_spritesheets/_JumpFallInbetween.png';
+game.world.player.jumpFallTransitionBackwardsSpriteSheet.src = '../character_spritesheets/_JumpFallInbetween_mirrored.png';
 
+// loads data about the sprite sheets into the players spriteAnimations array
+game.world.player.populateSpriteAnimations();
 
 // FIXME -- find a better way to do this, right now it is just a cheap way to make sure all the images and tilemap are loaded before starting engine
 setTimeout(() => {

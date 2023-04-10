@@ -1,10 +1,8 @@
-class Display {
+export default class Display {
     constructor(canvas) {
         this.buffer = document.createElement('canvas').getContext('2d');
         this.context = canvas.getContext('2d');
         this.tiles = new Display.Tileset(16, 34);
-        this.frameX = 0;
-        this.frameY = 0;
         this.gameFrame = 0;
         this.staggerFrames = 2;
     }
@@ -31,6 +29,13 @@ class Display {
 
     drawPlayer(image, spriteX, spriteY, spriteWidth, spriteHeight, x, y, width, height) {
         this.buffer.drawImage(image, spriteX, spriteY, spriteWidth, spriteHeight, x, y, width, height);
+    }
+
+    drawNextLevel(x, y) {
+        this.buffer.font = '40px serif';
+        this.buffer.textAlign = 'center';
+        this.buffer.fillText('Next Level', x, y);
+        this.buffer.fillText('↓', x, y + 30);
     }
 
     fill(color) {
