@@ -1,4 +1,4 @@
-class Engine {
+export default class Engine {
     constructor(timeStep, update, render) {
         this.timeStep = timeStep;
         this.accumulatedTime = 0;

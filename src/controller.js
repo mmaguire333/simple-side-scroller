@@ -1,4 +1,4 @@
- class Controller {
+ export default class Controller {
     constructor() {
         this.left = new Controller.ButtonInput();
         this.right = new Controller.ButtonInput();
