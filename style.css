@@ -39,7 +39,6 @@ canvas {
 .controls {
     list-style-type: none;
     font-size: 20px;
-    margin-top: 30px;
     width: 75%;
     display: flex;
     justify-content: space-between;
