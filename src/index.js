@@ -5,7 +5,15 @@ import Engine from './engine';
 
 // function to resize on screen canvas
 const resize = function() {
-    display.resize(document.body.clientWidth - 64, document.body.clientHeight - 64, game.world.height / game.world.width);
+    console.log(document.body.clientWidth)
+    let margin = 0;
+    if(document.body.clientWidth > 1650) {
+        margin = 250
+    } else {
+        margin = 40;
+    }
+
+    display.resize(document.body.clientWidth - margin, document.body.clientHeight - margin, game.world.height / game.world.width);
     display.render()
 }
 
@@ -105,9 +113,6 @@ window.addEventListener('resize', () => {
     resize();
 });
 
-// loads tilemap into game.world tilemap variable and tileset image into display.tileset src
-game.world.loadTilemap('./tilemaps/platform-sidescroller.json');
-
 // sets background image src once image is loaded
 game.world.backgroundImage.src = './platform-sidescroller-background.png';
 
@@ -127,8 +132,9 @@ game.world.player.jumpFallTransitionBackwardsSpriteSheet.src = './character_spri
 // loads data about the sprite sheets into the players spriteAnimations array
 game.world.player.populateSpriteAnimations();
 
-// FIXME -- find a better way to do this, right now it is just a cheap way to make sure all the images and tilemap are loaded before starting engine
-setTimeout(() => {
+// loads tilemap into game.world tilemap variable and tileset image into display.tileset src
+// this is done asyncronously (loadMaps is async function), so we resolve the promise before starting game engine
+game.world.loadMaps('./tilemaps/platform-sidescroller.json').then(() => {
     resize();
     engine.start();
-}, 500);
+});

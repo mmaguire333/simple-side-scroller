@@ -22,8 +22,8 @@ export default class Game {
       collisionMap: [],
       tilePositions: [],
 
-      loadTilemap(data) {
-        fetch(data)
+      async loadMaps(data) {
+        await fetch(data)
         .then((response) => response.json())
         .then((json) => { 
           let visMap = json.layers[2].data;
