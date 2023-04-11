@@ -1,11 +1,11 @@
-import Game from './game.js';
-import Display from './display.js';
-import Controller from './controller.js';
-import Engine from './engine.js';
+import Game from './game';
+import Display from './display';
+import Controller from './controller';
+import Engine from './engine';
 
 // function to resize on screen canvas
-const resize = function(event) {
-    display.resize(document.documentElement.clientWidth - 32, document.documentElement.clientHeight - 32, game.world.height / game.world.width);
+const resize = function() {
+    display.resize(document.body.clientWidth - 64, document.body.clientHeight - 64, game.world.height / game.world.width);
     display.render()
 }
 
@@ -101,28 +101,28 @@ window.addEventListener('keyup', (event) => {
     controller.keyDownOrUp(event);
 });
 
-window.addEventListener('resize', (event) => {
-    resize(event);
+window.addEventListener('resize', () => {
+    resize();
 });
 
 // loads tilemap into game.world tilemap variable and tileset image into display.tileset src
-game.world.loadTilemap('../tilemaps/platform-sidescroller.json');
+game.world.loadTilemap('./tilemaps/platform-sidescroller.json');
 
 // sets background image src once image is loaded
-game.world.backgroundImage.src = 'platform-sidescroller-background.png';
+game.world.backgroundImage.src = './platform-sidescroller-background.png';
 
 // sets the tileset image src
-display.tiles.image.src = '../tilesets/SET1_Mainlev_build.png';
+display.tiles.image.src = './tilesets/SET1_Mainlev_build.png';
 
 // sets player spritesheet images
-game.world.player.idleSpriteSheet.src = '../character_spritesheets/_Idle.png';
-game.world.player.idleBackwardsSpriteSheet.src = '../character_spritesheets/_Idle_mirrored.png';
-game.world.player.runSpriteSheet.src = '../character_spritesheets/_Run.png';
-game.world.player.runBackwardsSpriteSheet.src = '../character_spritesheets/_Run_mirrored.png'; 
-game.world.player.jumpSpriteSheet.src = '../character_spritesheets/_Jump.png';
-game.world.player.jumpBackwardsSpriteSheet.src = '../character_spritesheets/_Jump_mirrored.png';
-game.world.player.jumpFallTransitionSpriteSheet.src = '../character_spritesheets/_JumpFallInbetween.png';
-game.world.player.jumpFallTransitionBackwardsSpriteSheet.src = '../character_spritesheets/_JumpFallInbetween_mirrored.png';
+game.world.player.idleSpriteSheet.src = './character_spritesheets/_Idle.png';
+game.world.player.idleBackwardsSpriteSheet.src = './character_spritesheets/_Idle_mirrored.png';
+game.world.player.runSpriteSheet.src = './character_spritesheets/_Run.png';
+game.world.player.runBackwardsSpriteSheet.src = './character_spritesheets/_Run_mirrored.png'; 
+game.world.player.jumpSpriteSheet.src = './character_spritesheets/_Jump.png';
+game.world.player.jumpBackwardsSpriteSheet.src = './character_spritesheets/_Jump_mirrored.png';
+game.world.player.jumpFallTransitionSpriteSheet.src = './character_spritesheets/_JumpFallInbetween.png';
+game.world.player.jumpFallTransitionBackwardsSpriteSheet.src = './character_spritesheets/_JumpFallInbetween_mirrored.png';
 
 // loads data about the sprite sheets into the players spriteAnimations array
 game.world.player.populateSpriteAnimations();
