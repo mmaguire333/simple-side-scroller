@@ -5,7 +5,6 @@ import Engine from './engine';
 
 // function to resize on screen canvas
 const resize = function() {
-    console.log(document.body.clientWidth)
     let margin = 0;
     if(document.body.clientWidth > 1650) {
         margin = 250
@@ -120,14 +119,14 @@ game.world.backgroundImage.src = './platform-sidescroller-background.png';
 display.tiles.image.src = './tilesets/SET1_Mainlev_build.png';
 
 // sets player spritesheet images
-game.world.player.idleSpriteSheet.src = './character_spritesheets/_Idle.png';
-game.world.player.idleBackwardsSpriteSheet.src = './character_spritesheets/_Idle_mirrored.png';
-game.world.player.runSpriteSheet.src = './character_spritesheets/_Run.png';
-game.world.player.runBackwardsSpriteSheet.src = './character_spritesheets/_Run_mirrored.png'; 
-game.world.player.jumpSpriteSheet.src = './character_spritesheets/_Jump.png';
-game.world.player.jumpBackwardsSpriteSheet.src = './character_spritesheets/_Jump_mirrored.png';
-game.world.player.jumpFallTransitionSpriteSheet.src = './character_spritesheets/_JumpFallInbetween.png';
-game.world.player.jumpFallTransitionBackwardsSpriteSheet.src = './character_spritesheets/_JumpFallInbetween_mirrored.png';
+game.world.player.idleSpriteSheet.src = './character_spritesheets/Idle.png';
+game.world.player.idleBackwardsSpriteSheet.src = './character_spritesheets/Idle_mirrored.png';
+game.world.player.runSpriteSheet.src = './character_spritesheets/Run.png';
+game.world.player.runBackwardsSpriteSheet.src = './character_spritesheets/Run_mirrored.png'; 
+game.world.player.jumpSpriteSheet.src = './character_spritesheets/Jump.png';
+game.world.player.jumpBackwardsSpriteSheet.src = './character_spritesheets/Jump_mirrored.png';
+game.world.player.jumpFallTransitionSpriteSheet.src = './character_spritesheets/JumpFallInbetween.png';
+game.world.player.jumpFallTransitionBackwardsSpriteSheet.src = './character_spritesheets/JumpFallInbetween_mirrored.png';
 
 // loads data about the sprite sheets into the players spriteAnimations array
 game.world.player.populateSpriteAnimations();
