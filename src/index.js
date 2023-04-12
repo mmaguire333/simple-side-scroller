@@ -113,10 +113,10 @@ window.addEventListener('resize', () => {
 });
 
 // sets background image src once image is loaded
-game.world.backgroundImage.src = './platform-sidescroller-background.png';
+game.world.backgroundImage.src = './platform-sidescroller-background.PNG';
 
 // sets the tileset image src
-display.tiles.image.src = './tilesets/SET1_Mainlev_build.png';
+display.tiles.image.src = './tilesets/SET1_Mainlev_build.PNG';
 
 // sets player spritesheet images
 game.world.player.idleSpriteSheet.src = './character_spritesheets/Idle.png';
